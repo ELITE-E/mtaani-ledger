@@ -1,0 +1,17 @@
+stateDiagram-v2
+  direction LR
+  [*] --> REQUESTED
+  REQUESTED --> APPROVED: Grace (owner above KES 10,000)
+  REQUESTED --> REJECTED
+  APPROVED --> INITIATED
+  INITIATED --> SUCCEEDED
+  INITIATED --> FAILED: wallet restored
+  INITIATED --> UNKNOWN
+  UNKNOWN --> SUCCEEDED: evidence
+  UNKNOWN --> FAILED: evidence
+  REJECTED --> [*]
+  SUCCEEDED --> [*]
+  FAILED --> [*]
+  note right of UNKNOWN
+    Later - contract only
+  end note

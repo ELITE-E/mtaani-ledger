@@ -1,0 +1,21 @@
+stateDiagram-v2
+  direction TB
+  [*] --> PAYABLE
+  PAYABLE --> PENDING: initiated, payable moves to in-transit
+  PENDING --> SUCCEEDED: confirmed success
+  PENDING --> FAILED: confirmed failure
+  PENDING --> UNKNOWN: timeout or ambiguous response
+  UNKNOWN --> SUCCEEDED: independent evidence of success
+  UNKNOWN --> FAILED: independent evidence of failure
+  FAILED --> FAILED_UNRETURNED: principal not yet back
+  FAILED_UNRETURNED --> FAILED_RESOLVED: return seen in statement
+  SUCCEEDED --> [*]
+  FAILED_RESOLVED --> NEW_ITEM: restored payable, only a NEW payout item
+  NEW_ITEM --> PAYABLE
+  note right of UNKNOWN
+    Never failed or retried on timeout alone
+    Stays inside 2040 and protected obligations
+  end note
+  note right of SUCCEEDED
+    Cash leaves ledger only here
+  end note

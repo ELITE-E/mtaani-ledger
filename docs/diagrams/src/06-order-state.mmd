@@ -1,0 +1,15 @@
+stateDiagram-v2
+  direction LR
+  [*] --> HELD: ORDER_PLACED
+  HELD --> SETTLED: ORDER_DELIVERED
+  HELD --> RELEASED: ORDER_CANCELLED
+  SETTLED --> REFUNDED: REFUND_AFTER_DELIVERY (Should, full only)
+  RELEASED --> [*]
+  REFUNDED --> [*]
+  note right of SETTLED
+    Not final: may be refunded
+    One refund per order
+  end note
+  note right of RELEASED
+    No reinstatement in v1
+  end note

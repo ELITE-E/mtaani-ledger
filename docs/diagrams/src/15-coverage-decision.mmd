@@ -1,0 +1,21 @@
+flowchart TB
+  S([Reconciliation run]) --> Q1{"Statement present,<br/>complete, not stale?"}
+  Q1 -- no --> NV["NOT VERIFIED"]
+  Q1 -- yes --> Q2{"Unresolved cash movement<br/>blocks a reliable figure?"}
+  Q2 -- yes --> NV
+  Q2 -- no --> Q3{"Cash identity holds,<br/>timing items named?"}
+  Q3 -- no --> EX["Open exception"] --> NV
+  Q3 -- yes --> Q4{"Protected cash >= PO?<br/>PO = 2000+2001+2010+2020+2030+2040"}
+  Q4 -- no --> SF["SHORTFALL"]
+  Q4 -- yes --> CV["COVERED"]
+  CV --> Q5{"UNKNOWN or unreturned payout?"}
+  Q5 -- yes --> AR["Show 'at risk' line"] --> Q6{"Unresolved after 1 business day?"}
+  Q6 -- yes --> NV
+  Q6 -- no --> OK([Done])
+  Q5 -- no --> OK
+  classDef bad fill:#fee2e2,stroke:#b91c1c
+  classDef good fill:#dcfce7,stroke:#15803d
+  classDef warn fill:#fef3c7,stroke:#b45309
+  class SF bad
+  class CV good
+  class NV,EX warn

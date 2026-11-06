@@ -1,0 +1,13 @@
+stateDiagram-v2
+  direction LR
+  [*] --> OPEN
+  OPEN --> INVESTIGATING
+  INVESTIGATING --> ESCALATED
+  ESCALATED --> RESOLVED: with evidence only
+  INVESTIGATING --> RESOLVED: with evidence only
+  RESOLVED --> REOPENED: evidence contradicts
+  REOPENED --> INVESTIGATING
+  note right of RESOLVED
+    Never by a balancing entry
+    A timing item must be named and evidenced
+  end note

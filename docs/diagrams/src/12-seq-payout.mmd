@@ -1,0 +1,28 @@
+sequenceDiagram
+  autonumber
+  participant API as API / batch approval
+  participant DB as PostgreSQL
+  participant W as Worker
+  participant D as Daraja B2C
+  API->>DB: TX: lock payable, create item PENDING, payable to in-transit, insert outbox row
+  DB-->>API: commit
+  W->>DB: claim outbox row (lease), record attempt
+  DB-->>W: commit
+  Note over W,D: crash before this commit: nothing sent, retry safe
+  W->>D: B2C request (outside any DB transaction, no row locks held)
+  alt response received
+    D-->>W: accepted
+    W->>DB: guarded update, never overwrite a terminal state
+  else timeout or ambiguous
+    W->>DB: mark UNKNOWN, schedule investigation
+    Note over W,DB: crash after claim commits is also UNKNOWN. Never resend
+  end
+  D-->>API: result callback
+  API->>DB: TX1 store raw evidence, commit
+  API-->>D: 200
+  API->>DB: TX2 lock payout, apply terminal-state guard
+  alt success
+    DB->>DB: Dr 2040 Cr 1000, expected fee Dr 5010 Cr 2050
+  else failure
+    DB->>DB: Dr 2040 Cr payable, principal return is a timing item
+  end

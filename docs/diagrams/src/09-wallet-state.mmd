@@ -1,0 +1,17 @@
+stateDiagram-v2
+  direction LR
+  [*] --> UNREGISTERED
+  UNREGISTERED --> ACTIVE: registration event only
+  ACTIVE --> FROZEN: freeze (Later)
+  FROZEN --> ACTIVE: unfreeze (Later)
+  ACTIVE --> CLOSED: only at zero available, zero held, nothing pending
+  CLOSED --> [*]
+  note right of FROZEN
+    No spending or cash-out
+    Top-ups credited but restricted
+    Holds remain
+  end note
+  note right of CLOSED
+    Late receipts go to suspense
+    No reopening
+  end note

@@ -1,0 +1,61 @@
+flowchart TB
+  classDef asset fill:#dbeafe,stroke:#1d4ed8,color:#0f172a
+  classDef lia fill:#fef3c7,stroke:#b45309,color:#0f172a
+  classDef opl fill:#fce7f3,stroke:#be185d,color:#0f172a
+  classDef eq fill:#ede9fe,stroke:#6d28d9,color:#0f172a
+  classDef inc fill:#dcfce7,stroke:#15803d,color:#0f172a
+  classDef exp fill:#fee2e2,stroke:#b91c1c,color:#0f172a
+  classDef cash fill:#ffffff,stroke:#0f172a,stroke-width:2px
+  subgraph E0["PAYOUT_INITIATED (no cash moves)"]
+    direction LR
+    E0d0["DR<br/>2010 or 2020 Payable"]:::lia
+    E0c0["CR<br/>2040 Payout in transit"]:::lia
+    E0d0 -- "1,584" --> E0c0
+  end
+  subgraph E1["PAYOUT_SUCCEEDED (cash leaves ledger only here)"]
+    direction LR
+    E1d0["DR<br/>2040 Payout in transit"]:::lia
+    E1c0["CR<br/>1000 Cash Protected"]:::asset
+    E1d0 -- "1,584" --> E1c0
+  end
+  subgraph E2["FEE_EXPECTED_POSTED on confirmed success, not initiation"]
+    direction LR
+    E2d0["DR<br/>5010 B2C fee exp"]:::exp
+    E2c0["CR<br/>2050 Fee payable"]:::opl
+    E2d0 -- "9" --> E2c0
+  end
+  subgraph E3["PAYOUT_FAILED (payable restored; unreturned principal is a timing item)"]
+    direction LR
+    E3d0["DR<br/>2040 Payout in transit"]:::lia
+    E3c0["CR<br/>2010 or 2020 Payable"]:::lia
+    E3d0 -- "1,584" --> E3c0
+  end
+  subgraph E4["PAYOUT UNKNOWN (timeout or ambiguous)"]
+    direction LR
+    E4n["No journal. Balance stays in 2040,<br/>inside protected obligations"]
+  end
+  subgraph E5["FEE_VARIANCE_POSTED, actual higher (mirror image if lower)"]
+    direction LR
+    E5d0["DR<br/>5000 Paybill fee exp"]:::exp
+    E5c0["CR<br/>2050 Fee payable"]:::opl
+    E5d0 -- "3" --> E5c0
+  end
+  subgraph E6["FEE_SETTLED from statement (separate from variance)"]
+    direction LR
+    E6d0["DR<br/>2050 Fee payable"]:::opl
+    E6c0["CR<br/>1010 Cash Operating"]:::asset
+    E6d0 -- "18" --> E6c0
+  end
+  subgraph E7["FEE_UNMATCHED_RECORDED, provisional (5000 / 5010 / 5020)"]
+    direction LR
+    E7d0["DR<br/>5000 Paybill fee exp"]:::exp
+    E7c0["CR<br/>1010 Cash Operating"]:::asset
+    E7d0 -- "line amount" --> E7c0
+  end
+  E0 ~~~ E1
+  E1 ~~~ E2
+  E2 ~~~ E3
+  E3 ~~~ E4
+  E4 ~~~ E5
+  E5 ~~~ E6
+  E6 ~~~ E7

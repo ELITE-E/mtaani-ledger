@@ -1,0 +1,22 @@
+sequenceDiagram
+  autonumber
+  participant D as Daraja C2B
+  participant API as Callback endpoint
+  participant DB as PostgreSQL
+  participant W as Worker
+  D->>API: confirmation (receipt, amount, BillRefNumber)
+  API->>DB: TX1 validate structure, store raw payload and headers, commit
+  API-->>D: 200 (after TX1 commits)
+  API->>DB: TX2 match BillRefNumber (E.164, no fuzzy)
+  alt active wallet
+    DB->>DB: Dr 1000 Cr 2000, expected fee Dr 5000 Cr 2050
+  else unmatched, malformed, closed
+    DB->>DB: Dr 1000 Cr 2030, expected fee still posts
+  end
+  Note over API,DB: if TX2 fails, evidence stays marked pending
+  W->>DB: reprocess pending evidence
+  D->>API: duplicate (same receipt)
+  API-->>D: 200, original outcome, no second credit
+  D->>API: same receipt, different content
+  API->>DB: store conflict evidence, open integrity exception
+  API-->>D: 200

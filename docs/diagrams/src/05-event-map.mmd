@@ -1,0 +1,85 @@
+flowchart TB
+  classDef journal fill:#dbeafe,stroke:#1d4ed8,color:#0f172a
+  classDef status fill:#fef9c3,stroke:#a16207,color:#0f172a
+  classDef evid fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef later stroke-dasharray:3 3
+  classDef should stroke-dasharray:8 3
+
+  subgraph ID["Identity"]
+    CR(["CUSTOMER_REGISTERED"]):::status
+    WF(["WALLET_FROZEN / UNFROZEN / CLOSED"]):::status
+  end
+  subgraph COL["Collections and suspense"]
+    TM(["TOPUP_MATCHED"]):::journal
+    TU(["TOPUP_UNMATCHED"]):::journal
+    SI(["SUSPENSE_INVESTIGATED"]):::status
+    SE(["SUSPENSE_ESCALATED 48h"]):::status
+    SR(["SUSPENSE_REASSIGNED"]):::journal
+    SRF(["REFUNDED_TO_SENDER / WRITE-OFF"]):::journal
+  end
+  subgraph ORD["Orders"]
+    OP(["ORDER_PLACED"]):::journal
+    OD(["ORDER_DELIVERED"]):::journal
+    OX(["ORDER_CANCELLED"]):::journal
+    RF(["REFUND_AFTER_DELIVERY"]):::journal
+  end
+  subgraph PAY["Payouts"]
+    PB(["PAYOUT_BATCH_APPROVED"]):::status
+    PI(["PAYABLE_PAYOUT_INITIATED"]):::journal
+    PS(["PAYOUT_SUCCEEDED"]):::journal
+    PF(["PAYOUT_FAILED"]):::journal
+    PU(["PAYOUT_UNKNOWN"]):::status
+    PR(["PAYOUT_RESOLVED"]):::journal
+    PRR(["PAYOUT_RETURN_RECEIVED"]):::status
+  end
+  subgraph FEE["Fees"]
+    FE(["FEE_EXPECTED_POSTED"]):::journal
+    FA(["FEE_ACTUAL_RECORDED"]):::evid
+    FV(["FEE_VARIANCE_POSTED"]):::journal
+    FS(["FEE_SETTLED"]):::journal
+    FUN(["FEE_UNMATCHED_RECORDED"]):::journal
+  end
+  subgraph CTL["Controls"]
+    SIM(["STATEMENT_IMPORTED"]):::evid
+    RR(["RECONCILIATION_RUN"]):::status
+    EO(["EXCEPTION_OPENED"]):::status
+    ER(["EXCEPTION_RESOLVED"]):::status
+    CP(["CORRECTION / REVERSAL_POSTED"]):::journal
+  end
+  subgraph POOL["Pools and equity"]
+    SW(["POOL_SWEEP_EXECUTED"]):::journal
+    OC(["OWNER_CAPITAL_RECEIVED"]):::journal
+    SEED(["OPENING_SEED_JOURNAL"]):::journal
+    DR(["OWNER_DRAWING"]):::journal
+  end
+
+  CR -- "opens wallet" --> TM
+  TM -- "triggers" --> FE
+  TU -- "triggers" --> FE
+  TU --> SI --> SE --> SR
+  SE --> SRF
+  TM -- "funds" --> OP
+  OP -- "one outcome" --> OD
+  OP -- "or" --> OX
+  OD -- "creates payable" --> PB
+  OD --> RF
+  PB --> PI --> PS
+  PI --> PF
+  PI --> PU
+  PU -- "evidence" --> PR
+  PR --> PS
+  PR --> PF
+  PF --> PRR
+  PS -- "triggers" --> FE
+  SIM --> FA --> FV
+  FE --> FV
+  FA --> FS
+  SIM --> FUN
+  SIM --> PRR
+  SIM --> RR --> EO --> ER
+  ER -. "may lead to" .-> CP
+  OD -- "income aged 48h" --> SW
+  SEED --> OC
+
+  class WF,SR,SRF,DR later
+  class SE,RF,SW,ER should

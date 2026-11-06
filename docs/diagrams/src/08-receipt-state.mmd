@@ -1,0 +1,13 @@
+stateDiagram-v2
+  direction LR
+  [*] --> UNMATCHED: TOPUP_UNMATCHED
+  UNMATCHED --> INVESTIGATING
+  INVESTIGATING --> ESCALATED: 48 hours
+  state "v1 stops here" as V1
+  ESCALATED --> REASSIGNED: evidence + approval (Later)
+  ESCALATED --> REFUND_PENDING: confirmed sender (Later)
+  REFUND_PENDING --> REFUNDED
+  ESCALATED --> WRITTEN_OFF: day 90, owner approves, to unclaimed-funds liability (Later)
+  REASSIGNED --> [*]
+  REFUNDED --> [*]
+  WRITTEN_OFF --> [*]

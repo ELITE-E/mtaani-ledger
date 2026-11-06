@@ -1,0 +1,81 @@
+flowchart TB
+  classDef asset fill:#dbeafe,stroke:#1d4ed8,color:#0f172a
+  classDef lia fill:#fef3c7,stroke:#b45309,color:#0f172a
+  classDef opl fill:#fce7f3,stroke:#be185d,color:#0f172a
+  classDef eq fill:#ede9fe,stroke:#6d28d9,color:#0f172a
+  classDef inc fill:#dcfce7,stroke:#15803d,color:#0f172a
+  classDef exp fill:#fee2e2,stroke:#b91c1c,color:#0f172a
+  classDef cash fill:#ffffff,stroke:#0f172a,stroke-width:2px
+  subgraph E0["POOL_SWEEP_EXECUTED (Should): pool transfer only"]
+    direction LR
+    E0d0["DR<br/>1010 Cash Operating"]:::asset
+    E0c0["CR<br/>1000 Cash Protected"]:::asset
+    E0d0 -- "266" --> E0c0
+  end
+  subgraph E1["OWNER_CAPITAL_RECEIVED: debit the pool actually funded"]
+    direction LR
+    E1d0["DR<br/>1010 Cash Operating"]:::asset
+    E1c0["CR<br/>3000 Owner capital"]:::eq
+    E1d0 -- "55,000" --> E1c0
+  end
+  subgraph E2["OPENING_SEED_JOURNAL (synthetic): equity computed, never plugged"]
+    direction LR
+    E2d0["DR<br/>1000 Cash Protected"]:::asset
+    E2d1["DR<br/>1010 Cash Operating"]:::asset
+    E2c0["CR<br/>2000 Wallet"]:::lia
+    E2c1["CR<br/>3000 Owner capital"]:::eq
+    E2d0 -- "5,000" --> E2c0
+    E2d0 -- "55,000" --> E2c1
+    E2d1 -- "50,000" --> E2c0
+  end
+  subgraph E3["REFUND_AFTER_DELIVERY (Should): full only, one per order"]
+    direction LR
+    E3d0["DR<br/>5030 Refund exp"]:::exp
+    E3c0["CR<br/>2000 Wallet"]:::lia
+    E3d0 -- "1,950" --> E3c0
+  end
+  subgraph E4["Refund pool transfer (Should): separate journal"]
+    direction LR
+    E4d0["DR<br/>1000 Cash Protected"]:::asset
+    E4c0["CR<br/>1010 Cash Operating"]:::asset
+    E4d0 -- "1,950" --> E4c0
+  end
+  subgraph E5["SUSPENSE_REASSIGNED (Later)"]
+    direction LR
+    E5d0["DR<br/>2030 Unmatched"]:::lia
+    E5c0["CR<br/>2000 Wallet"]:::lia
+    E5d0 -- "2,000" --> E5c0
+  end
+  subgraph E6["CASH-OUT initiated (Later)"]
+    direction LR
+    E6d0["DR<br/>2000 Wallet"]:::lia
+    E6c0["CR<br/>2040 Payout in transit"]:::lia
+    E6d0 -- "n" --> E6c0
+  end
+  subgraph E7["CASH-OUT succeeded (Later)"]
+    direction LR
+    E7d0["DR<br/>2040 Payout in transit"]:::lia
+    E7c0["CR<br/>1000 Cash Protected"]:::asset
+    E7d0 -- "n" --> E7c0
+  end
+  subgraph E8["CASH-OUT failed (Later)"]
+    direction LR
+    E8d0["DR<br/>2040 Payout in transit"]:::lia
+    E8c0["CR<br/>2000 Wallet"]:::lia
+    E8d0 -- "n" --> E8c0
+  end
+  subgraph E9["OWNER_DRAWING (Later): blocked below the fee floor"]
+    direction LR
+    E9d0["DR<br/>3010 Drawings"]:::eq
+    E9c0["CR<br/>1010 Cash Operating"]:::asset
+    E9d0 -- "n" --> E9c0
+  end
+  E0 ~~~ E1
+  E1 ~~~ E2
+  E2 ~~~ E3
+  E3 ~~~ E4
+  E4 ~~~ E5
+  E5 ~~~ E6
+  E6 ~~~ E7
+  E7 ~~~ E8
+  E8 ~~~ E9

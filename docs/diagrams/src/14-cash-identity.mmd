@@ -1,0 +1,18 @@
+flowchart LR
+  classDef led fill:#dbeafe,stroke:#1d4ed8,color:#0f172a
+  classDef ext fill:#dcfce7,stroke:#15803d,color:#0f172a
+  classDef tim fill:#fef3c7,stroke:#b45309,color:#0f172a
+  P["Protected cash 1000"]:::led
+  O["Operating cash 1010"]:::led
+  L["Ledger cash"]:::led
+  B["Statement balance B<br/>covers both pools"]:::ext
+  D["Payout debits in transit D<br/>M-Pesa debited, ledger not yet,<br/>or failed principal not yet returned"]:::tim
+  F["Unsettled fees FP<br/>balance of 2050"]:::tim
+  R["External side"]:::ext
+  P --> L
+  O --> L
+  B --> R
+  D --> R
+  F --> R
+  L == "must equal" ==> R
+  R -. "any unexplained difference" .-> X["Reconciliation exception<br/>never a balancing entry"]

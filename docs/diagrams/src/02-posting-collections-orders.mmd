@@ -1,0 +1,55 @@
+flowchart TB
+  classDef asset fill:#dbeafe,stroke:#1d4ed8,color:#0f172a
+  classDef lia fill:#fef3c7,stroke:#b45309,color:#0f172a
+  classDef opl fill:#fce7f3,stroke:#be185d,color:#0f172a
+  classDef eq fill:#ede9fe,stroke:#6d28d9,color:#0f172a
+  classDef inc fill:#dcfce7,stroke:#15803d,color:#0f172a
+  classDef exp fill:#fee2e2,stroke:#b91c1c,color:#0f172a
+  classDef cash fill:#ffffff,stroke:#0f172a,stroke-width:2px
+  subgraph E0["TOPUP_MATCHED (example 2,000)"]
+    direction LR
+    E0d0["DR<br/>1000 Cash Protected"]:::asset
+    E0c0["CR<br/>2000 Wallet"]:::lia
+    E0d0 -- "2,000" --> E0c0
+  end
+  subgraph E1["TOPUP_UNMATCHED (bad BillRefNumber, closed or unknown wallet)"]
+    direction LR
+    E1d0["DR<br/>1000 Cash Protected"]:::asset
+    E1c0["CR<br/>2030 Unmatched"]:::lia
+    E1d0 -- "2,000" --> E1c0
+  end
+  subgraph E2["FEE_EXPECTED_POSTED on top-up (never reduces the wallet credit)"]
+    direction LR
+    E2d0["DR<br/>5000 Paybill fee exp"]:::exp
+    E2c0["CR<br/>2050 Fee payable"]:::opl
+    E2d0 -- "20" --> E2c0
+  end
+  subgraph E3["ORDER_PLACED (item 1,800 + delivery 150)"]
+    direction LR
+    E3d0["DR<br/>2000 Wallet"]:::lia
+    E3c0["CR<br/>2001 Holds"]:::lia
+    E3d0 -- "1,950" --> E3c0
+  end
+  subgraph E4["ORDER_CANCELLED (mutually exclusive with delivery)"]
+    direction LR
+    E4d0["DR<br/>2001 Holds"]:::lia
+    E4c0["CR<br/>2000 Wallet"]:::lia
+    E4d0 -- "1,950" --> E4c0
+  end
+  subgraph E5["ORDER_DELIVERED (1,584 + 100 + 216 + 50 = 1,950)"]
+    direction LR
+    E5d0["DR<br/>2001 Holds"]:::lia
+    E5c0["CR<br/>2010 Merchant payable"]:::lia
+    E5c1["CR<br/>2020 Rider payable"]:::lia
+    E5c2["CR<br/>4000 Commission"]:::inc
+    E5c3["CR<br/>4010 Delivery income"]:::inc
+    E5d0 -- "1,584" --> E5c0
+    E5d0 -- "100" --> E5c1
+    E5d0 -- "216" --> E5c2
+    E5d0 -- "50" --> E5c3
+  end
+  E0 ~~~ E1
+  E1 ~~~ E2
+  E2 ~~~ E3
+  E3 ~~~ E4
+  E4 ~~~ E5

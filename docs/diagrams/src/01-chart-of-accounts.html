@@ -1,0 +1,37 @@
+<!doctype html><meta charset="utf-8"><style>
+body{margin:0;padding:24px;background:#fff;font:15px/1.3 system-ui,sans-serif;color:#0f172a;width:1240px}
+h1{font-size:18px;margin:0 0 14px}
+.grp{border:2px solid #94a3b8;border-radius:10px;padding:12px 14px;margin-bottom:10px;position:relative}
+.grp>.t{font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#475569;margin-bottom:10px}
+.row{display:flex;gap:10px;flex-wrap:nowrap}
+.c{flex:1;border:2px solid;border-radius:8px;padding:8px 10px}
+.c b{display:block}.c small{color:#475569}
+.asset{background:#dbeafe;border-color:#1d4ed8}.lia{background:#fef3c7;border-color:#b45309}
+.opl{background:#fce7f3;border-color:#be185d}.eq{background:#ede9fe;border-color:#6d28d9}
+.inc{background:#dcfce7;border-color:#15803d}.exp{background:#fee2e2;border-color:#b91c1c}
+.arrow{text-align:center;font-size:13px;color:#334155;margin:2px 0 8px}
+.arrow span{display:inline-block;margin:0 60px}
+.two{display:flex;gap:12px}.two>div{flex:1}
+</style>
+<h1>Chart of accounts: 18 accounts, two cash pools, seven control accounts with subledgers</h1>
+<div class="grp"><div class="t">Assets: one M-Pesa shortcode, one real balance, divided on paper</div>
+<div class="row"><div class="c asset"><b>1000 Cash, Protected pool</b><small>backs everything owed to others</small></div>
+<div class="c asset"><b>1010 Cash, Operating pool</b><small>funds Safaricom fees; holds swept earned income</small></div></div></div>
+<div class="arrow"><span>&#9660; 1000 backs the protected obligations</span><span>&#9660; 1010 funds the fee payable</span></div>
+<div class="two"><div style="flex:6">
+<div class="grp"><div class="t">Liabilities: protected obligations (PO). 1000 must cover their sum</div>
+<div class="row">
+<div class="c lia"><b>2000 Wallet</b><small>subledger: customer</small></div>
+<div class="c lia"><b>2001 Holds</b><small>customer + order</small></div>
+<div class="c lia"><b>2010 Merchant payable</b><small>shop</small></div>
+<div class="c lia"><b>2020 Rider payable</b><small>rider</small></div>
+<div class="c lia"><b>2030 Unmatched receipts</b><small>receipt</small></div>
+<div class="c lia"><b>2040 Payout in transit</b><small>payout item</small></div></div></div></div>
+<div style="flex:1"><div class="grp"><div class="t">Operating obligation</div>
+<div class="c opl"><b>2050 Safaricom fee payable</b><small>fee event</small></div></div></div></div>
+<div class="grp"><div class="t">Rule: control balance always = sum of its subledger. A mismatch is an integrity failure, never a balancing entry</div></div>
+<div class="two">
+<div class="grp"><div class="t">Income (per order)</div><div class="c inc"><b>4000 Commission</b></div><br><div class="c inc"><b>4010 Delivery income</b></div><small>earned entries swept to 1010 once 48h old</small></div>
+<div class="grp"><div class="t">Expense</div><div class="c exp"><b>5000 Paybill collection fee</b></div><div style="height:6px"></div><div class="c exp"><b>5010 B2C payout fee</b></div><div style="height:6px"></div><div class="c exp"><b>5020 Cash-out fee</b> <small>Later</small></div><div style="height:6px"></div><div class="c exp"><b>5030 Refund expense</b> <small>Should</small></div></div>
+<div class="grp"><div class="t">Equity</div><div class="c eq"><b>3000 Owner capital</b></div><div style="height:6px"></div><div class="c eq"><b>3010 Owner drawings</b> <small>Later, contra</small></div><div style="height:6px"></div><div class="c eq"><b>3020 Retained earnings</b></div></div>
+</div>
