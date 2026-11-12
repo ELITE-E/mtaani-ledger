@@ -1,0 +1,46 @@
+x-app: &app
+  build: .
+  env_file:
+    - path: .env
+      required: false
+  environment:
+    DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-ledger}:${POSTGRES_PASSWORD:-ledger}@db:5432/${POSTGRES_DB:-ledger}
+  depends_on:
+    db:
+      condition: service_healthy
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ledger}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ledger}
+      POSTGRES_DB: ${POSTGRES_DB:-ledger}
+      TZ: UTC
+    ports:
+      - "127.0.0.1:${DB_HOST_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  api:
+    <<: *app
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=2)"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  worker:
+    <<: *app
+    command: ["python", "-m", "app.worker"]
+    stop_grace_period: 10s
+
+volumes:
+  pgdata:
